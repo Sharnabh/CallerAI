@@ -13,6 +13,7 @@ class CallViewModel: ObservableObject {
     @Published var participants: [CallParticipants] = []
     private let speechSynthesizer = AVSpeechSynthesizer()
     private var cancellables = Set<AnyCancellable>()
+    private var hasSpokenGreeting = false
     
     init(selectedContact: Set<Contact>) {
         self.participants = selectedContact.map {
@@ -21,7 +22,6 @@ class CallViewModel: ObservableObject {
     }
     
     func startCall() {
-        speak("Hello This is AI Calling Assistant")
         simulateCallProgress()
     }
     
@@ -41,13 +41,22 @@ class CallViewModel: ObservableObject {
     }
     
     private func simulateCallProgress() {
-        for (index, participant) in participants.enumerated() {
-            DispatchQueue.main.asyncAfter(deadline: .now() + Double(index * 2 + 2)) {
-                self.updateStatus(for: participant.id, to: .connected)
-            }
-            
-            DispatchQueue.main.asyncAfter(deadline: .now() + Double(index * 2 + 8)) {
-                self.updateStatus(for: participant.id, to: .ended)
+        for participant in participants {
+            let ringingDelay = Double.random(in: 1...3)
+            DispatchQueue.main.asyncAfter(deadline: .now() + ringingDelay) {
+                guard self.participants.contains(where: { $0.id == participant.id && $0.status == .ringing }) else { return }
+                
+                let shouldConnect = Bool.random()
+                if shouldConnect {
+                    self.updateStatus(for: participant.id, to: .connected)
+                    
+                    let callDuration = Double.random(in: 5...15)
+                    DispatchQueue.main.asyncAfter(deadline: .now() + callDuration) {
+                        self.updateStatus(for: participant.id, to: .ended)
+                    }
+                } else {
+                    self.updateStatus(for: participant.id, to: .ended)
+                }
             }
         }
     }
@@ -55,6 +64,11 @@ class CallViewModel: ObservableObject {
     private func updateStatus(for participantId: UUID, to newStatus: CallParticipants.CallStatus) {
         if let index = participants.firstIndex(where: {$0.id == participantId}) {
             participants[index].status = newStatus
+        }
+        
+        if newStatus == .connected && !hasSpokenGreeting {
+            speak("Hello This is AI Calling Assistant")
+            hasSpokenGreeting = true
         }
     }
     

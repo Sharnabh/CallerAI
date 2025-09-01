@@ -17,11 +17,11 @@ class ContactsViewModel: ObservableObject {
     
     private func loadContacts() {
         self.contacts = [
-            Contact(name: "John Appleseed", phoneNumber: "555-0101"),
-            Contact(name: "Kate Bell", phoneNumber: "555-0102"),
-            Contact(name: "Anna Haro", phoneNumber: "555-0103"),
-            Contact(name: "Daniel Higgins Jr.", phoneNumber: "555-0104"),
-            Contact(name: "David Taylor", phoneNumber: "555-0105")
+            Contact(name: "John Appleseed", phoneNumber: "5550101"),
+            Contact(name: "Kate Bell", phoneNumber: "5550102"),
+            Contact(name: "Anna Haro", phoneNumber: "5550103"),
+            Contact(name: "Daniel Higgins Jr.", phoneNumber: "5550104"),
+            Contact(name: "David Taylor", phoneNumber: "5550105")
         ]
     }
     
@@ -31,5 +31,13 @@ class ContactsViewModel: ObservableObject {
         } else {
             selectedContact.insert(contact)
         }
+    }
+    
+    func clearSelection() {
+        selectedContact.removeAll()
+    }
+    
+    func selectSingleContact(_ contact: Contact) {
+        selectedContact = [contact]
     }
 }
